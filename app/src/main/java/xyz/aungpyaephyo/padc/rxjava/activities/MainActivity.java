@@ -24,6 +24,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import xyz.aungpyaephyo.padc.rxjava.R;
 import xyz.aungpyaephyo.padc.rxjava.RxJavaApp;
 import xyz.aungpyaephyo.padc.rxjava.data.vo.RestaurantVO;
@@ -37,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.tv_text)
     TextView tvText;
 
+    private PublishSubject<Integer> mTestSubject;
+    private int mValue = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +48,47 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this, this);
 
         setSupportActionBar(toolbar);
+
+        mTestSubject = PublishSubject.create();
+        mTestSubject.subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Integer integer) {
+                switch (integer) {
+                    case 1:
+                        tvText.setText("Yayyyy. We are one.");
+                        break;
+                    case 2:
+                        tvText.setText("Hmmmm, two. Still acceptable though.");
+                        break;
+                    case 3:
+                        tvText.setText("Ok people. WTF. We are dripping off. Three ?");
+                        break;
+                    case 4:
+                        tvText.setText("Listen up, unless we keep push up in next time, we are screwed.");
+                        break;
+                    case 5:
+                        tvText.setText("We are screwed.");
+                        break;
+                    default:
+                        tvText.setText("We are officially irrelevant now.");
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     @Override
@@ -116,6 +161,12 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn_in_code_three)
     public void onTapBtnInCodeThree(View view) {
         operationExecution();
+    }
+
+    @OnClick(R.id.btn_in_code_four)
+    public void onTapBtnInCodeFour(View view) {
+        mValue++;
+        mTestSubject.onNext(mValue);
     }
 
     private void helloRxJava(String... names) {
