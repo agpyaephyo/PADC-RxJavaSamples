@@ -15,10 +15,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import xyz.aungpyaephyo.padc.rxjava.R;
 import xyz.aungpyaephyo.padc.rxjava.RxJavaApp;
+import xyz.aungpyaephyo.padc.rxjava.data.vo.RestaurantVO;
+import xyz.aungpyaephyo.padc.rxjava.network.responses.RestaurantListResponse;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,6 +75,39 @@ public class MainActivity extends AppCompatActivity {
         helloRxJava("the", "real", "PADC", ":", "Android", "Developer", "Course");
     }
 
+    @OnClick(R.id.btn_in_code_two)
+    public void onTapBtnInCodeTwo(View view) {
+        tvText.setText("");
+        Observable<RestaurantListResponse> restaurantListResponseObservable = getRestaurantListResponseObservable();
+        restaurantListResponseObservable
+                .subscribeOn(Schedulers.io()) //run value creation code on a specific thread (non-UI thread)
+                .observeOn(AndroidSchedulers.mainThread()) //observe the emitted value of the Observable on an appropriate thread
+                .subscribe(new Observer<RestaurantListResponse>() {
+
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull RestaurantListResponse restaurantListResponse) {
+                        for (RestaurantVO restaurant : restaurantListResponse.getRestaurantList()) {
+                            tvText.setText(tvText.getText() + "Rx Api : \"" + restaurant.getTitle() + "\"" + " has " + restaurant.getTagList().size() + " special meals.\n");
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        tvText.setText("onError : " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
     private void helloRxJava(String... names) {
         Observable<String> nameObservable = Observable.fromArray(names);
         nameObservable.subscribe(new Observer<String>() {
@@ -95,5 +132,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private Observable<RestaurantListResponse> getRestaurantListResponseObservable() {
+        RxJavaApp rxJavaApp = (RxJavaApp) getApplication();
+        return rxJavaApp.getRestaurantApi().getRestaurantList();
     }
 }
