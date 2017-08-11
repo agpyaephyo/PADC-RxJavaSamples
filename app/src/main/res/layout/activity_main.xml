@@ -40,6 +40,14 @@
             android:layout_alignParentBottom="true"
             />
 
+        <Button
+            android:id="@+id/btn_in_code_two"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="In Code Two"
+            android:layout_above="@id/btn_in_code_one"
+            />
+
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
