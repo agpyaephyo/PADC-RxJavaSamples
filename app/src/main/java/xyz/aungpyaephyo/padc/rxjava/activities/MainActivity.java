@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +26,9 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import xyz.aungpyaephyo.padc.rxjava.R;
@@ -189,6 +192,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public ObservableSource<RestaurantVO> apply(@NonNull List<RestaurantVO> restaurantVOs) throws Exception {
                         return Observable.fromIterable(restaurantVOs);
+                    }
+                })
+                .filter(new Predicate<RestaurantVO>() {
+                    @Override
+                    public boolean test(@NonNull RestaurantVO restaurant) throws Exception {
+                        return !TextUtils.isEmpty(restaurant.getTitle());
+                    }
+                })
+                .take(5)
+                .doOnNext(new Consumer<RestaurantVO>() {
+                    @Override
+                    public void accept(@NonNull RestaurantVO restaurantVO) throws Exception {
+                        Log.d(RxJavaApp.TAG, "Saving restaurant" + restaurantVO.getTitle() + " info into disk");
                     }
                 })
                 .subscribe(new Observer<RestaurantVO>() {
