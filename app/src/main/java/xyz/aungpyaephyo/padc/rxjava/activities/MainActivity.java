@@ -207,16 +207,22 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(RxJavaApp.TAG, "Saving restaurant" + restaurantVO.getTitle() + " info into disk");
                     }
                 })
-                .subscribe(new Observer<RestaurantVO>() {
+                .map(new Function<RestaurantVO, String>() {
+                    @Override
+                    public String apply(@NonNull RestaurantVO restaurant) throws Exception {
+                        String readableText = "Rx Api : \"" + restaurant.getTitle() + "\"" + " has " + restaurant.getTagList().size() + " special meals.\n";
+                        return readableText;
+                    }
+                })
+                .subscribe(new Observer<String>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull RestaurantVO restaurant) {
-                        tvText.setText(tvText.getText() + "Rx Api : \"" + restaurant.getTitle() + "\"" + " has " + restaurant.getTagList().size()
-                                + " special meals.\n");
+                    public void onNext(@NonNull String readableText) {
+                        tvText.setText(tvText.getText() + readableText);
                     }
 
                     @Override
