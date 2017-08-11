@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -181,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         Observable<RestaurantListResponse> restaurantListResponseObservable = getRestaurantListResponseObservable();
         restaurantListResponseObservable
                 .subscribeOn(Schedulers.io()) //run value creation code on a specific thread (non-UI thread)
-                .observeOn(AndroidSchedulers.mainThread()) //observe the emitted value of the Observable on an appropriate thread
                 .map(new Function<RestaurantListResponse, List<RestaurantVO>>() {
                     @Override
                     public List<RestaurantVO> apply(@NonNull RestaurantListResponse restaurantListResponse) throws Exception {
@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         return readableText;
                     }
                 })
+                .observeOn(AndroidSchedulers.mainThread()) //observe the emitted value of the Observable on an appropriate thread
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
