@@ -5,24 +5,31 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import xyz.aungpyaephyo.padc.rxjava.R;
@@ -167,6 +174,68 @@ public class MainActivity extends AppCompatActivity {
     public void onTapBtnInCodeFour(View view) {
         mValue++;
         mTestSubject.onNext(mValue);
+    }
+
+    @OnClick(R.id.btn_in_code_five)
+    public void onTapBtnInCodeFive(View view) {
+        tvText.setText("");
+        Observable<RestaurantListResponse> restaurantListResponseObservable = getRestaurantListResponseObservable();
+        restaurantListResponseObservable
+                .subscribeOn(Schedulers.io()) //run value creation code on a specific thread (non-UI thread)
+                .map(new Function<RestaurantListResponse, List<RestaurantVO>>() {
+                    @Override
+                    public List<RestaurantVO> apply(@NonNull RestaurantListResponse restaurantListResponse) throws Exception {
+                        return restaurantListResponse.getRestaurantList();
+                    }
+                })
+                .flatMap(new Function<List<RestaurantVO>, ObservableSource<RestaurantVO>>() {
+                    @Override
+                    public ObservableSource<RestaurantVO> apply(@NonNull List<RestaurantVO> restaurantVOs) throws Exception {
+                        return Observable.fromIterable(restaurantVOs);
+                    }
+                })
+                .filter(new Predicate<RestaurantVO>() {
+                    @Override
+                    public boolean test(@NonNull RestaurantVO restaurant) throws Exception {
+                        return !TextUtils.isEmpty(restaurant.getTitle());
+                    }
+                })
+                .take(5)
+                .doOnNext(new Consumer<RestaurantVO>() {
+                    @Override
+                    public void accept(@NonNull RestaurantVO restaurantVO) throws Exception {
+                        Log.d(RxJavaApp.TAG, "Saving restaurant" + restaurantVO.getTitle() + " info into disk");
+                    }
+                })
+                .map(new Function<RestaurantVO, String>() {
+                    @Override
+                    public String apply(@NonNull RestaurantVO restaurant) throws Exception {
+                        String readableText = "Rx Api : \"" + restaurant.getTitle() + "\"" + " has " + restaurant.getTagList().size() + " special meals.\n";
+                        return readableText;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread()) //observe the emitted value of the Observable on an appropriate thread
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull String readableText) {
+                        tvText.setText(tvText.getText() + readableText);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void helloRxJava(String... names) {

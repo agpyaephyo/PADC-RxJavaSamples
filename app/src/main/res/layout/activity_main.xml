@@ -64,6 +64,14 @@
             android:layout_above="@id/btn_in_code_three"
             />
 
+        <Button
+            android:id="@+id/btn_in_code_five"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="In Code Five"
+            android:layout_above="@id/btn_in_code_four"
+            />
+
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
