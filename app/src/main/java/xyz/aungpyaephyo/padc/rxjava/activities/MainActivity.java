@@ -1,6 +1,7 @@
 package xyz.aungpyaephyo.padc.rxjava.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,11 +11,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.concurrent.Callable;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -108,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @OnClick(R.id.btn_in_code_three)
+    public void onTapBtnInCodeThree(View view) {
+        operationExecution();
+    }
+
     private void helloRxJava(String... names) {
         Observable<String> nameObservable = Observable.fromArray(names);
         nameObservable.subscribe(new Observer<String>() {
@@ -137,5 +147,60 @@ public class MainActivity extends AppCompatActivity {
     private Observable<RestaurantListResponse> getRestaurantListResponseObservable() {
         RxJavaApp rxJavaApp = (RxJavaApp) getApplication();
         return rxJavaApp.getRestaurantApi().getRestaurantList();
+    }
+
+    private Integer operation() {
+        try {
+            // "Simulate" the delay.
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        int operationResult = 100;
+        return operationResult;
+    }
+
+    private void operationExecution() {
+        tvText.setText("");
+        Single<Integer> integerSingle = Single.fromCallable(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return operation();
+            }
+        });
+
+        integerSingle
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<Integer>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull Integer integer) {
+                        tvText.setText("Operation has finished. The value is " + integer + "\n");
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+                });
+
+        recursiveLogger(1);
+    }
+
+    private void recursiveLogger(final int index) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                tvText.setText(tvText.getText() + "Time waited " + index + ") " + (index + 500) + "\n");
+                if (index < 20) {
+                    recursiveLogger(index + 1);
+                }
+            }
+        }, 500);
     }
 }
