@@ -73,6 +73,53 @@ public class MainActivity extends AppCompatActivity {
 
     private void helloRxJava(String... names) {
         Observable<String> nameObservable = Observable.fromArray(names);
+        Observer<String> nameObserver = new Observer<String>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull String name) {
+                tvText.setText(tvText.getText() + "Rx : \"" + name + "\"" + " has " + name.length() + " characters.\n");
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+        Observer<String> nameLogObserver = new Observer<String>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull String name) {
+                Log.d(RxJavaApp.TAG, "Rx : \"" + name + "\"" + " has " + name.length() + " characters.");
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+
+        nameObservable.subscribe(nameObserver);
+        nameObservable.subscribe(nameLogObserver);
+
+        /*
         nameObservable.subscribe(new Observer<String>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -95,5 +142,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        */
     }
 }
