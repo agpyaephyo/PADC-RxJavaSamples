@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNext(@NonNull Integer integer) {
+                tvText.setText("Operation has finished. The value is " + integer + "\n");
+
+                /*
                 switch (integer) {
                     case 1:
                         tvText.setText("Yayyyy. We are one.");
@@ -84,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         tvText.setText("We are officially irrelevant now.");
                 }
+                */
             }
 
             @Override
@@ -137,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         tvText.setText("");
         Observable<RestaurantListResponse> restaurantListResponseObservable = getRestaurantListResponseObservable();
         restaurantListResponseObservable
-                .subscribeOn(Schedulers.io()) //run value creation code on a specific thread (non-UI thread)
+                .subscribeOn(Schedulers.io()) //run "value creation code" on a specific thread (non-UI thread)
                 .observeOn(AndroidSchedulers.mainThread()) //observe the emitted value of the Observable on an appropriate thread
                 .subscribe(new Observer<RestaurantListResponse>() {
 
@@ -310,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         recursiveLogger(1);
+
     }
 
     private void recursiveLogger(final int index) {
